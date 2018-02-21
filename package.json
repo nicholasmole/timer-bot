@@ -9,7 +9,7 @@
     "cli-spinner": "^0.2.7",
     "iohook": "^0.1.12",
     "keyboardjs": "^2.4.1",
-    "node-notifier": "^5.0.2",
+    "node-notifier": "^5.2.1",
     "node-stopwatch": "0.0.1",
     "request": "^2.55.0",
     "sys": "0.0.1",
