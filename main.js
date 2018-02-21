@@ -15,29 +15,44 @@ const loading = blessed.screen({
   fullUnicode: true,
 });
 const loadingcontainer = blessed.box({
-  width: '20%',
-	height: '20%',
+  width: '25%',
+	height: '25%',
 	left: '5%',
 	top: '5%',
 	draggable: true,
 	border: {
-    fg: '#0000ff',
-    type: 'line',
+    type: 'line'
   },
+	style: {
+		transparent: true,
+		bg: '#ff0000',
+		border: {
+			fg: '#0000ff',
+			bg: '#000011',
+		},
+	}
 });
 const messageInput = blessed.textbox({
-	//width: '90%',
-	height: '50%',
+	width: '90%',
+	height: '80%',
 	left: '5%',
 	top: '5%',
 	keys: true,
 	vi: true,
 	inputOnFocus: true,
 	mouse: true,
+	rows: 3,
+	cols: 3,
+	lines: 3,
+	wrap: true,
+	wordwrap: true,
+  style: {
+		transparent: true,
+	},
 	border: {
     fg: '#0000ff',
     type: 'line',
-  },
+	},
 });
 const messageInputTitle = blessed.text({
 	width: '50%',
@@ -47,10 +62,26 @@ const messageInputTitle = blessed.text({
 	content: '{bold}Search{/bold}',
 	tags: true,
 });
+const playbutton = blessed.text({
+	width: '20%',
+	top: '50%',
+	left: '50%',
+	align: 'right',
+	mouse: true,
+	style: {
+		hover: {
+			fg: 'green',
+			bg: 'white'
+		},
+	},
+	content: '{bold} ▶ {/bold}',
+	tags: true,
+});
 
 loading.append(loadingcontainer);
 loadingcontainer.append(messageInput);
 loadingcontainer.append(messageInputTitle);
+loadingcontainer.append(playbutton);
 loading.render();
 
 // spinner.setSpinnerString('|/-\\');
@@ -67,6 +98,7 @@ const onBlur = (component) => {
 console.log("ddd");
 keyBindings.escape = process.exit.bind(null, 0); 
 keyBindings['C-w'] = messageInput.focus.bind(messageInput); // ctrl-w for write
+playbutton.enableMouse();
 
 
 
@@ -82,8 +114,9 @@ messageInput.on('keypress', (ch, key) => {
 		callKeyBindings(ch, key);
 	}
 });
-messageInput.on('element click', function(el, mouse) {
+playbutton.on('element click', function(el, mouse) {
 	//el.focus = true;
+	setInterval(intervalFunc, 1000);
 });
 messageInput.on('focus', onFocus.bind(null, messageInput));
 messageInput.on('blur', onBlur.bind(null, messageInput));
@@ -104,7 +137,7 @@ function intervalFunc() {
 	loading.render();
 }
 
-setInterval(intervalFunc, 1000);
+// setInterval(intervalFunc, 1000);
 
 function classic(){
 
