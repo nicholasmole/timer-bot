@@ -1,12 +1,17 @@
 const notifier = require('node-notifier');
 const path = require('path');
 var blessed = require('blessed');
+const wrap = require('word-wrap');
+const sys = require('util');
+const exec = require('child_process').exec;
 
 var Spinner = require('cli-spinner').Spinner;
  
 var spinner = new Spinner('processing.. %s');
 
 const keyBindings = {};
+
+var stopwatchon = 0;
 
 const loading = blessed.screen({
   autopadding: true,
@@ -20,19 +25,21 @@ const loadingcontainer = blessed.box({
 	left: '5%',
 	top: '5%',
 	draggable: true,
+	padding: '0px',
 	border: {
     type: 'line'
   },
 	style: {
+		padding: '0 0 0 0',
 		transparent: true,
-		bg: '#ff0000',
+
 		border: {
 			fg: '#0000ff',
 			bg: '#000011',
 		},
 	}
 });
-const messageInput = blessed.textbox({
+const messageInput = blessed.textarea({
 	width: '90%',
 	height: '80%',
 	left: '5%',
@@ -46,7 +53,9 @@ const messageInput = blessed.textbox({
 	lines: 3,
 	wrap: true,
 	wordwrap: true,
+	padding: '0px',
   style: {
+		padding: '0px',
 		transparent: true,
 	},
 	border: {
@@ -56,15 +65,15 @@ const messageInput = blessed.textbox({
 });
 const messageInputTitle = blessed.text({
 	width: '50%',
-	top: '50%',
+	top: '80%',
 	left: '5%',
 	align: 'left',
-	content: '{bold}Search{/bold}',
+	content: '{bold}Time 0:00{/bold}',
 	tags: true,
 });
 const playbutton = blessed.text({
 	width: '20%',
-	top: '50%',
+	top: '80%',
 	left: '50%',
 	align: 'right',
 	mouse: true,
@@ -108,15 +117,33 @@ loading.on('keypress', (ch, key) => {
 		fn();
 	}
 });
+exec(`column=10  2>/dev/null & say "Good Morning" 2>/dev/null ` , (err, stdout, stderr) => {
+  if (err) {
+    console.error(err);
+    return;
+  }
+
+});
 messageInput.on('keypress', (ch, key) => {
 	if (Object.keys(keyBindings).includes(key.full)) {
 		messageInput.cancel();
 		callKeyBindings(ch, key);
+		messageInput.content = wrap(messageInput.content, {width: 10});
 	}
 });
 playbutton.on('element click', function(el, mouse) {
 	//el.focus = true;
-	setInterval(intervalFunc, 1000);
+	if(stopwatchon){
+
+		clearInterval(stopwatchon);
+		stopwatchon = 0;
+
+	}else{
+
+		stopwatchon = setInterval(intervalFunc, 200);
+
+	}
+	//stopwatchon = stopwatchon == 0 ?  setInterval(intervalFunc, 200): 0;
 });
 messageInput.on('focus', onFocus.bind(null, messageInput));
 messageInput.on('blur', onBlur.bind(null, messageInput));
@@ -130,9 +157,39 @@ messageInput.on('blur', onBlur.bind(null, messageInput));
 my long task here
 */
 time=0;
+
+function stringTime(time) {
+	//hours 
+	var hours = 0;
+	hours = parseInt(time/3600);
+	while(time > 3600){time-=3600}
+	//minutes 
+	const minutes = parseInt(time/60);
+	let minuteszero = '';
+	if(minutes < 10){
+		minuteszero = '0';
+	} else{
+		minuteszero = '';
+	}
+	//seconds
+	while(time > 60){time-=60}
+	let zero = '';
+	if(time < 10){
+		zero = '0';
+	} else{
+		zero = '';
+	}
+	if (hours > 0){
+		return (hours + ":" + minuteszero + minutes + ":" + zero + time );
+	} else {
+		return ( minuteszero + minutes + ":" + zero + time );
+	}
+}
+
 function intervalFunc() {
-	messageInputTitle.content = toString(time);
-	messageInputTitle.content = ""+time+"";
+	//messageInputTitle.content = "Time " + stringTime(time);
+	messageInputTitle.content = ""+stringTime(time)+"";
+	//console.log(stringTime(time));
 	time+=1
 	loading.render();
 }
